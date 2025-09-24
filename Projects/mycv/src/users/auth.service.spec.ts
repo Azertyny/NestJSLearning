@@ -10,11 +10,22 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     // create a fake copy of the users service
+    const users: User[] = [];
     fakeUsersService = {
       // With partial we don't need to implement all method of UsersService
-      find: () => Promise.resolve([]),
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      find: (email: string) => {
+        const filteredUsers = users.filter((user) => user.email === email);
+        return Promise.resolve(filteredUsers);
+      },
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 99999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
+      },
     };
 
     const module = await Test.createTestingModule({
@@ -44,8 +55,7 @@ describe('AuthService', () => {
   });
 
   it('throws an error if user signs up with email that is in use', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([{ id: 1, email: 'a', password: '1' } as User]);
+    await service.signup('asdf@asdf.com', 'aserdf');
     await expect(service.signup('asdf@asdf.com', 'asdf')).rejects.toThrow(
       BadRequestException,
     );
@@ -58,24 +68,14 @@ describe('AuthService', () => {
   });
 
   it('throws if an invalid password is provided', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([
-        { email: 'asdf@asdf.com', password: 'laskdjf' } as User,
-      ]);
+    await service.signup('asdf@asdf.com', 'laskdjf');
     await expect(service.signin('asdf@asdf.com', 'zqfeesrf')).rejects.toThrow(
       BadRequestException,
     );
   });
 
   it('returns a user if correct password is provided', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([
-        {
-          email: 'asdf@asdf.com',
-          password:
-            '1179aafdd3396721.6a0812baad53cc6767964ef0cb5f971879cd3dca3a42394cb70a2e0242dffb14',
-        } as User,
-      ]);
+    await service.signup('asdf@asdf.com', 'laskdjf');
 
     const user = await service.signin('asdf@asdf.com', 'laskdjf');
 
