@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
-import { setupApp } from './../src/setup-app';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 
 describe('Authentication System (e2e)', () => {
@@ -16,12 +15,11 @@ describe('Authentication System (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
 
-    setupApp(app);
     await app.init();
   });
 
   it('handles a signup request', () => {
-    const email = 'asdsvk@asdk.com';
+    const email = 'asdsxk@asdk.com';
 
     return request(app.getHttpServer())
       .post('/auth/signup')
