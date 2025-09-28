@@ -3,8 +3,10 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { setupApp } from './../src/setup-app';
+import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 
-describe('AppController (e2e)', () => {
+describe('Authentication System (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
@@ -13,13 +15,22 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    setupApp(app);
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('handles a signup request', () => {
+    const email = 'asdsvk@asdk.com';
+
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/auth/signup')
+      .send({ email, password: 'afera' } as CreateUserDto)
+      .expect(201)
+      .then((res) => {
+        const { id, email } = res.body;
+        expect(id).toBeDefined();
+        expect(email).toEqual(email);
+      });
   });
 });
