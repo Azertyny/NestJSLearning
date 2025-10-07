@@ -1,0 +1,26 @@
+### Create a new report
+POST http://localhost:3000/reports
+Content-Type: application/json
+
+{
+    "make": "ford",
+    "model": "mustang",
+    "year": 1986,
+    "mileage": 500000,
+    "lng": 0,
+    "lat": 0,
+    "price": 400,
+    "approved": false
+
+}
+
+### Approve a report
+PATCH http://localhost:3000/reports/14
+Content-Type: application/json
+
+{
+    "approved": true
+}
+
+### Get the estimate for an existing vehicule
+GET http://localhost:3000/reports?make=ford&model=mustang&lng=0&lat=0&mileage=500000&year=1981
